@@ -442,7 +442,7 @@ async function doPoll() {
 
   const logEl = document.getElementById('log');
   for (const line of data.log) {
-    logEl.textContent += line + '\n';
+    logEl.textContent += line + String.fromCharCode(10);
   }
   logOffset += data.log.length;
   logEl.scrollTop = logEl.scrollHeight;
