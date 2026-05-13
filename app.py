@@ -360,7 +360,7 @@ HTML = """<!DOCTYPE html>
         <option value="small">Small — more accurate (~60 min for 1hr video)</option>
       </select>
     </div>
-    <button class="btn" id="start-btn" onclick="startJob()">Generate Reels</button>
+    <button type="button" class="btn" id="start-btn" onclick="startJob()">Generate Reels</button>
     <div class="error-msg" id="form-error"></div>
   </div>
 
