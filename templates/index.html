@@ -163,8 +163,20 @@ function startJob() {
 function doPoll() {
   if (!jobId) return;
   fetch('/poll/' + jobId + '?after=' + logOffset)
-  .then(function(res) { return res.json(); })
+  .then(function(res) {
+    if (!res.ok) {
+      clearInterval(pollInterval);
+      var logEl = document.getElementById('log');
+      logEl.textContent += 'Server restarted — please try again.\n';
+      var btn = document.getElementById('start-btn');
+      btn.disabled = false;
+      btn.textContent = 'Generate Reels';
+      return null;
+    }
+    return res.json();
+  })
   .then(function(data) {
+    if (!data) return;
     var logEl = document.getElementById('log');
     for (var i = 0; i < data.log.length; i++) {
       logEl.textContent += data.log[i] + '\n';
@@ -177,12 +189,18 @@ function doPoll() {
       showResults(data);
     } else if (data.status === 'error') {
       clearInterval(pollInterval);
-      logEl.textContent += '\nError: ' + (data.error || 'Unknown error');
+      logEl.textContent += 'Error: ' + (data.error || 'Unknown error') + '\n';
       logEl.scrollTop = logEl.scrollHeight;
       var btn = document.getElementById('start-btn');
       btn.disabled = false;
-      btn.textContent = 'Try Again';
+      btn.textContent = 'Generate Reels';
     }
+  })
+  .catch(function() {
+    clearInterval(pollInterval);
+    var btn = document.getElementById('start-btn');
+    btn.disabled = false;
+    btn.textContent = 'Generate Reels';
   });
 }
 
