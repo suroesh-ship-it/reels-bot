@@ -349,7 +349,7 @@ HTML = """<!DOCTYPE html>
       <label>Anthropic API Key</label>
       <div class="key-wrap">
         <input id="api_key" type="password" placeholder="sk-ant-..." />
-        <button class="show-btn" onclick="toggleKey()">Show</button>
+        <button type="button" class="show-btn" onclick="toggleKey()">Show</button>
       </div>
     </div>
     <div>
@@ -408,25 +408,31 @@ async function startJob() {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Starting...';
 
-  const res = await fetch('/run', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url, api_key, model, niche }),
-  });
-  const data = await res.json();
+  try {
+    const res = await fetch('/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, api_key, model, niche }),
+    });
+    const data = await res.json();
 
-  if (data.error) {
-    errEl.textContent = data.error;
+    if (data.error) {
+      errEl.textContent = data.error;
+      btn.disabled = false;
+      btn.textContent = 'Generate Reels';
+      return;
+    }
+
+    jobId = data.job_id;
+    logOffset = 0;
+    document.getElementById('progress-card').style.display = 'block';
+    pollInterval = setInterval(doPoll, 2000);
+    doPoll();
+  } catch (e) {
+    errEl.textContent = 'Connection error: ' + e.message;
     btn.disabled = false;
     btn.textContent = 'Generate Reels';
-    return;
   }
-
-  jobId = data.job_id;
-  logOffset = 0;
-  document.getElementById('progress-card').style.display = 'block';
-  pollInterval = setInterval(doPoll, 2000);
-  doPoll();
 }
 
 async function doPoll() {
